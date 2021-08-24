@@ -7,7 +7,7 @@ const Intern = require("./lib/Intern.js");
 
 const employees = [];
 
-let addMore = "Yes";
+let addAnother = "Yes";
 let isMgr = true;
 
 const employeeQuestions = [
@@ -102,13 +102,16 @@ function init() {
 
 //add employee
 async function addEmployee() {
-  try {
-    while (addMore === "Yes") {
+  do {
+    console.log("doing");
+    try {
       const response = await inquirer.prompt(employeeQuestions);
       // console.log(response);
 
-      const { name, id, email, role, github, school, addMore, officeNumber } =
+      var { name, id, email, role, github, school, addMore, officeNumber } =
         response;
+
+      addAnother = addMore;
 
       switch (role) {
         case "Engineer":
@@ -133,10 +136,10 @@ async function addEmployee() {
       console.log(employees);
       console.log(addMore);
       console.log(isMgr);
+    } catch (err) {
+      console.log(err);
     }
-  } catch (err) {
-    console.log(err);
-  }
+  } while (addMore === "Yes");
 }
 
 init();
