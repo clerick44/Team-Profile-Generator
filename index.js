@@ -1,16 +1,23 @@
 const fs = require("fs");
 const inquirer = require("inquirer");
 
-const generateHTML = require("./src/generateHTML");
+// const  = require("./src/generateHTML");
 
 const Manager = require("./lib/Manager");
 const Engineer = require("./lib/Engineer");
 const Intern = require("./lib/Intern.js");
 
+const StartHTML = require("./src/StartHTML");
+const EndHTML = require("./src/EndHTML");
+const ManagerHTML = require("./src/ManagerHTML");
+const EngineerHTML = require("./src/EngineerHTML");
+const InternHTML = require("./src/InternHTML");
+
 const employees = [];
+var newHTML;
 
 let addAnother = "Yes";
-var isMgr = true;
+var isMgr = false;
 
 const employeeQuestions = [
   {
@@ -98,15 +105,16 @@ const employeeQuestions = [
 ];
 // const managerQuestions = Manager.question.concat(employeeQuestions);
 
-function init() {
-  addEmployee();
-  buildHtml();
+async function init() {
+  startHTML();
+  await addEmployee();
+  finishHTML();
 }
 
 //add employee
 async function addEmployee() {
   do {
-    console.log("doing");
+    console.log("asking");
     try {
       const response = await inquirer.prompt(employeeQuestions);
       // console.log(response);
@@ -120,31 +128,60 @@ async function addEmployee() {
         case "Engineer":
           console.log("engineer");
           employee = new Engineer(name, id, email, github);
-          employees.push(employee);
+          newHTML = await EngineerHTML(employee);
+          addHTML(newHTML);
+          // employees.push(employee);
           break;
 
         case "Intern":
           console.log("intern");
           employee = new Intern(name, id, email, school);
-          employees.push(employee);
+          newHTML = await InternHTML(employee);
+          addHTML(newHTML);
+          // employees.push(employee);
           break;
 
         default:
           console.log("manager");
           employee = new Manager(name, id, email, officeNumber);
-          employees.push(employee);
+          newHTML = await ManagerHTML(employee);
+          addHTML(newHTML);
           isMgr = false;
           break;
       }
-      console.log(employees);
-      console.log(addMore);
-      console.log(isMgr);
     } catch (err) {
       console.log(err);
     }
   } while (addMore === "Yes");
 }
 
-function buildHtml() {}
+function startHTML() {
+  fs.writeFile("./dist/team.html", StartHTML, function (err) {
+    if (err) {
+      console.log(err);
+    }
+  });
+  return;
+}
+
+function addHTML(newHTML) {
+  console.log("appending file");
+  fs.appendFile("./dist/team.html", newHTML, function (err) {
+    if (err) {
+      return reject(err);
+    }
+  });
+  return;
+}
+
+function finishHTML() {
+  console.log("appending file");
+  fs.appendFile("./dist/team.html", EndHTML, function (err) {
+    if (err) {
+      return reject(err);
+    }
+  });
+  console.log("finished HTML");
+}
 
 init();
