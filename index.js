@@ -1,6 +1,8 @@
 const fs = require("fs");
 const inquirer = require("inquirer");
 
+const generateHTML = require("./src/generateHTML");
+
 const Manager = require("./lib/Manager");
 const Engineer = require("./lib/Engineer");
 const Intern = require("./lib/Intern.js");
@@ -8,7 +10,7 @@ const Intern = require("./lib/Intern.js");
 const employees = [];
 
 let addAnother = "Yes";
-let isMgr = true;
+var isMgr = true;
 
 const employeeQuestions = [
   {
@@ -24,9 +26,9 @@ const employeeQuestions = [
   {
     message: "Enter Manager's office Number.",
     name: "officeNumber",
-    when: (isMgr) => isMgr,
+    when: isMgr,
     validate: (answer) => {
-      console.log("inq " + isMgr);
+      console.log(" isMgr = " + isMgr);
       if (!answer) {
         return console.log("Office number is a required field!");
       }
@@ -63,7 +65,7 @@ const employeeQuestions = [
     message: "Select employee's role",
     choices: ["Engineer", "Intern"],
     name: "role",
-    when: (isMgr) => !isMgr,
+    when: !isMgr,
   },
   {
     message: "Enter Engineer's Github Id.",
@@ -98,6 +100,7 @@ const employeeQuestions = [
 
 function init() {
   addEmployee();
+  buildHtml();
 }
 
 //add employee
@@ -141,5 +144,7 @@ async function addEmployee() {
     }
   } while (addMore === "Yes");
 }
+
+function buildHtml() {}
 
 init();
