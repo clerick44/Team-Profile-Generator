@@ -1,4 +1,4 @@
-const managerCard = async function (employee) {
+const managerCard = function (employee) {
   return `
       <div class="col-4 mt-4">
           <div class="card h-100">

@@ -9,7 +9,7 @@ const engineerCard = function (employee) {
               <div class="card-body">
                   <p class="id">ID: ${employee.id}</p>
                   <p class="email">Email: <a href="mailto:${employee.email}">${employee.email}</a></p>
-                  <p class="github">Github: <a href="https://github.com/${employee.github}">${engineer.github}</a></p>
+                  <p class="github">Github: <a href="https://github.com/${employee.github}">${employee.github}</a></p>
               </div>
           </div>
       </div>

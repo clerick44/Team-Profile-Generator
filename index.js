@@ -16,8 +16,7 @@ const InternHTML = require("./src/InternHTML");
 const employees = [];
 var newHTML;
 
-let addAnother = "Yes";
-var isMgr = false;
+var isMgr = true;
 
 const employeeQuestions = [
   {
@@ -33,9 +32,11 @@ const employeeQuestions = [
   {
     message: "Enter Manager's office Number.",
     name: "officeNumber",
-    when: isMgr,
+    when: (isMgr) => {
+      // console.log(isMgr);
+      return isMgr !== true;
+    },
     validate: (answer) => {
-      console.log(" isMgr = " + isMgr);
       if (!answer) {
         return console.log("Office number is a required field!");
       }
@@ -103,7 +104,6 @@ const employeeQuestions = [
     name: "addMore",
   },
 ];
-// const managerQuestions = Manager.question.concat(employeeQuestions);
 
 async function init() {
   startHTML();
@@ -117,41 +117,41 @@ async function addEmployee() {
     console.log("asking");
     try {
       const response = await inquirer.prompt(employeeQuestions);
-      // console.log(response);
 
       var { name, id, email, role, github, school, addMore, officeNumber } =
         response;
-
-      addAnother = addMore;
 
       switch (role) {
         case "Engineer":
           console.log("engineer");
           employee = new Engineer(name, id, email, github);
-          newHTML = await EngineerHTML(employee);
+          newHTML = EngineerHTML(employee);
           addHTML(newHTML);
-          // employees.push(employee);
+          employees.push(employee);
           break;
 
         case "Intern":
           console.log("intern");
           employee = new Intern(name, id, email, school);
-          newHTML = await InternHTML(employee);
+          newHTML = InternHTML(employee);
           addHTML(newHTML);
-          // employees.push(employee);
+          employees.push(employee);
           break;
 
         default:
           console.log("manager");
           employee = new Manager(name, id, email, officeNumber);
-          newHTML = await ManagerHTML(employee);
+          newHTML = ManagerHTML(employee);
           addHTML(newHTML);
-          isMgr = false;
+          employees.push(employee);
+          // isMgr = false;
           break;
       }
     } catch (err) {
       console.log(err);
     }
+    isMgr = false;
+    console.log("isMgr is now = " + isMgr);
   } while (addMore === "Yes");
 }
 
