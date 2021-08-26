@@ -1,8 +1,8 @@
+//Sets node dependencies
 const fs = require("fs");
 const inquirer = require("inquirer");
 
-// const  = require("./src/generateHTML");
-
+//Sets links to outside dependencies
 const Manager = require("./lib/Manager");
 const Engineer = require("./lib/Engineer");
 const Intern = require("./lib/Intern.js");
@@ -13,11 +13,7 @@ const ManagerHTML = require("./src/ManagerHTML");
 const EngineerHTML = require("./src/EngineerHTML");
 const InternHTML = require("./src/InternHTML");
 
-const employees = [];
-var newHTML;
-
-var isMgr = true;
-
+//Questions used for all employee types
 const employeeQuestions = [
   {
     message: "Enter employee's name",
@@ -25,20 +21,6 @@ const employeeQuestions = [
     validate: (answer) => {
       if (!answer) {
         return console.log("Employee name is a required field!");
-      }
-      return true;
-    },
-  },
-  {
-    message: "Enter Manager's office Number.",
-    name: "officeNumber",
-    when: (isMgr) => {
-      // console.log(isMgr);
-      return isMgr !== true;
-    },
-    validate: (answer) => {
-      if (!answer) {
-        return console.log("Office number is a required field!");
       }
       return true;
     },
@@ -70,10 +52,33 @@ const employeeQuestions = [
   },
   {
     type: "list",
+    message: "would you like to add another employee?",
+    choices: ["Yes", "No"],
+    name: "addMore",
+  },
+];
+
+//Question unique to Manager position
+const managerQuestions = [
+  {
+    message: "Enter Manager's office Number.",
+    name: "officeNumber",
+    validate: (answer) => {
+      if (!answer) {
+        return console.log("Office number is a required field!");
+      }
+      return true;
+    },
+  },
+];
+
+//Questions unique to Engineer and Intern positions
+const teamMemberQuestions = [
+  {
+    type: "list",
     message: "Select employee's role",
     choices: ["Engineer", "Intern"],
     name: "role",
-    when: !isMgr,
   },
   {
     message: "Enter Engineer's Github Id.",
@@ -97,64 +102,67 @@ const employeeQuestions = [
       return true;
     },
   },
-  {
-    type: "list",
-    message: "would you like to add another employee?",
-    choices: ["Yes", "No"],
-    name: "addMore",
-  },
 ];
 
+//Init calls all neccessary functions
 async function init() {
   startHTML();
+  await addManager();
   await addEmployee();
   finishHTML();
 }
 
-//add employee
+//function collects Manager data and builds HTML card
+async function addManager() {
+  try {
+    const officeNumber = await inquirer.prompt(managerQuestions);
+    const response = await inquirer.prompt(employeeQuestions);
+
+    var { name, id, email, role, github, school, addMore } = response;
+
+    employee = new Manager(name, id, email, officeNumber);
+
+    newHTML = ManagerHTML(employee);
+    addHTML(newHTML);
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+//function collects Intern/Engineer data and builds HTML card
 async function addEmployee() {
+  //continues to prompt for new employees as long as user input is "Yes"
   do {
-    console.log("asking");
     try {
+      //prompts for user input
+      const questionsResponse = await inquirer.prompt(teamMemberQuestions);
       const response = await inquirer.prompt(employeeQuestions);
 
-      var { name, id, email, role, github, school, addMore, officeNumber } =
-        response;
+      //stores response to variables
+      var { name, id, email, addMore } = response;
+      var { role, github, school } = questionsResponse;
 
+      //checks employee type, creates employee class and builds HTML
       switch (role) {
         case "Engineer":
-          console.log("engineer");
           employee = new Engineer(name, id, email, github);
           newHTML = EngineerHTML(employee);
           addHTML(newHTML);
-          employees.push(employee);
           break;
 
         case "Intern":
-          console.log("intern");
           employee = new Intern(name, id, email, school);
           newHTML = InternHTML(employee);
           addHTML(newHTML);
-          employees.push(employee);
-          break;
-
-        default:
-          console.log("manager");
-          employee = new Manager(name, id, email, officeNumber);
-          newHTML = ManagerHTML(employee);
-          addHTML(newHTML);
-          employees.push(employee);
-          // isMgr = false;
           break;
       }
     } catch (err) {
       console.log(err);
     }
-    isMgr = false;
-    console.log("isMgr is now = " + isMgr);
   } while (addMore === "Yes");
 }
 
+//creates HTML file and builds boilerplate
 function startHTML() {
   fs.writeFile("./dist/team.html", StartHTML, function (err) {
     if (err) {
@@ -164,8 +172,9 @@ function startHTML() {
   return;
 }
 
+//takes employee type and related data and creates HTML employee card and appends it to file
 function addHTML(newHTML) {
-  console.log("appending file");
+  console.log("Adding employee to HTML file");
   fs.appendFile("./dist/team.html", newHTML, function (err) {
     if (err) {
       return reject(err);
@@ -174,8 +183,8 @@ function addHTML(newHTML) {
   return;
 }
 
+//closes HTML
 function finishHTML() {
-  console.log("appending file");
   fs.appendFile("./dist/team.html", EndHTML, function (err) {
     if (err) {
       return reject(err);
